@@ -39,6 +39,6 @@ mvn test
 * TestNG Reports
 * Cucumber HTML Reports
 
-## 🔗 Author
+##  Author
 
 Hazem Walid
