@@ -2,10 +2,14 @@ package org.example.stepDefs;
 
 import io.cucumber.java.en.*;
 import org.example.pages.P03_homePage;
+import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.interactions.Actions;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
 
+import java.time.Duration;
 import java.util.List;
 import java.util.Random;
 
@@ -16,27 +20,46 @@ public class D05_hoverCategoriesStepDef {
     WebElement selectedMain;
     String selectedSubText;
 
-    @Given("user hover on random category")
+    @When("user hover on random category")
     public void hoverRandomCategory() {
 
-        List<WebElement> categories = home.mainCategories();
+        WebDriverWait wait = new WebDriverWait(Hooks.driver, Duration.ofSeconds(10));
 
-        Random rand = new Random();
-        int index = rand.nextInt(3); // only first 3 have subcategories
+        // ✅ WAIT using SAME locator from Page Object
+        List<WebElement> categories = wait.until(
+                ExpectedConditions.numberOfElementsToBeMoreThan(
+                        By.cssSelector("ul.top-menu.notmobile > li > a"), 0
+                )
+        );
 
-        selectedMain = categories.get(index);
+        System.out.println("Categories size = " + categories.size());
+
+        Random random = new Random();
+        WebElement selectedCategory = categories.get(random.nextInt(categories.size()));
 
         Actions actions = new Actions(Hooks.driver);
-        actions.moveToElement(selectedMain).perform();
+        actions.moveToElement(selectedCategory).perform();
+
+        // ✅ NOW get subcategories from SAME element
+        List<WebElement> subCategories = home.subCategories(selectedCategory);
+
+        if (subCategories.size() > 0) {
+            subCategories.get(0).click();
+        } else {
+            Assert.fail("No subcategories found");
+        }
     }
 
     @When("user select random sub-category")
     public void selectSubCategory() {
-
         List<WebElement> subs = home.subCategories(selectedMain);
 
+        if (subs.isEmpty()) {
+            Assert.fail("No sub-categories found for the selected main category.");
+        }
+
         Random rand = new Random();
-        int index = rand.nextInt(subs.size());
+        int index = rand.nextInt(subs.size()); // Dynamically handle the list size
 
         WebElement sub = subs.get(index);
 
@@ -47,9 +70,12 @@ public class D05_hoverCategoriesStepDef {
 
     @Then("sub-category page should be opened successfully")
     public void verifySubCategoryPage() {
+        WebElement pageTitleElement = home.pageTitle();
+        Assert.assertNotNull(pageTitleElement, "Page title is not displayed on the sub-category page.");
 
-        String pageTitle = home.pageTitle().getText().toLowerCase().trim();
+        String pageTitle = pageTitleElement.getText().toLowerCase().trim();
 
-        Assert.assertTrue(pageTitle.contains(selectedSubText));
+        Assert.assertTrue(pageTitle.contains(selectedSubText),
+                String.format("Expected page title to contain '%s', but was '%s'", selectedSubText, pageTitle));
     }
 }
