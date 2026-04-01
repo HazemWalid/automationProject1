@@ -1,12 +1,11 @@
+
 package org.example.stepDefs;
 import io.cucumber.java.en.And;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 import org.example.pages.P01_register;
-import org.openqa.selenium.By;
 import org.openqa.selenium.support.ui.ExpectedConditions;
-import org.openqa.selenium.support.ui.Select;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.asserts.SoftAssert;
 
@@ -16,11 +15,11 @@ public class D01_registerStepDef {
 
   P01_register register = new P01_register();
 
-    @Given("user go to register page")
-    public void goRegisterPage()
-    {
-        register.registerlink().click();
-    }
+  @Given("user go to register page")
+  public void goRegisterPage()
+  {
+    register.registerlink().click();
+  }
   @When("user select gender type")
   public void selectGender() {
     register.genderMale().click();
@@ -31,13 +30,6 @@ public class D01_registerStepDef {
     register.firstName().sendKeys(first);
     register.lastName().sendKeys(last);
   }
-
- /* @And("user enter date of birth")
-  public void dob() {
-    new Select(Hooks.driver.findElement(By.name("DateOfBirthDay"))).selectByValue("10");
-    new Select(Hooks.driver.findElement(By.name("DateOfBirthMonth"))).selectByValue("5");
-    new Select(Hooks.driver.findElement(By.name("DateOfBirthYear"))).selectByValue("1995");
-  }*/
 
   @And("user enter email {string}")
   public void email(String email) {
@@ -70,8 +62,5 @@ public class D01_registerStepDef {
 
     soft.assertAll();
 
+  }
 }
-}
-
-
-

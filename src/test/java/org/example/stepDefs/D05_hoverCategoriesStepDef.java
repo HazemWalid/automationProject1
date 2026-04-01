@@ -1,6 +1,8 @@
 package org.example.stepDefs;
 
-import io.cucumber.java.en.*;
+import io.cucumber.java.en.Given;
+import io.cucumber.java.en.Then;
+import io.cucumber.java.en.When;
 import org.example.pages.P03_homePage;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
@@ -12,70 +14,65 @@ import org.testng.Assert;
 import java.time.Duration;
 import java.util.List;
 import java.util.Random;
+import java.util.concurrent.TimeUnit;
 
 public class D05_hoverCategoriesStepDef {
 
-    P03_homePage home = new P03_homePage();
+    P03_homePage homePage = new P03_homePage();
+    String selectedName;
+    int selectedCategoryIndex;
 
-    WebElement selectedMain;
-    String selectedSubText;
-
-    @When("user hover on random category")
+    @Given("user hover on random category")
     public void hoverRandomCategory() {
+        Hooks.driver.get("https://demo.nopcommerce.com/");
 
         WebDriverWait wait = new WebDriverWait(Hooks.driver, Duration.ofSeconds(10));
+        wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(
+                By.xpath("//ul[@class='top-menu notmobile']/li/a")
+        ));
 
-        // ✅ WAIT using SAME locator from Page Object
-        List<WebElement> categories = wait.until(
-                ExpectedConditions.numberOfElementsToBeMoreThan(
-                        By.cssSelector("ul.top-menu.notmobile > li > a"), 0
-                )
-        );
+        List<WebElement> categories = homePage.mainCategories();
+        Assert.assertTrue(categories.size() >= 3, "Main categories were not found");
 
-        System.out.println("Categories size = " + categories.size());
-
-        Random random = new Random();
-        WebElement selectedCategory = categories.get(random.nextInt(categories.size()));
+        selectedCategoryIndex = new Random().nextInt(3);
+        WebElement target = categories.get(selectedCategoryIndex);
 
         Actions actions = new Actions(Hooks.driver);
-        actions.moveToElement(selectedCategory).perform();
-
-        // ✅ NOW get subcategories from SAME element
-        List<WebElement> subCategories = home.subCategories(selectedCategory);
-
-        if (subCategories.size() > 0) {
-            subCategories.get(0).click();
-        } else {
-            Assert.fail("No subcategories found");
-        }
+        actions.moveToElement(target).perform();
     }
 
     @When("user select random sub-category")
-    public void selectSubCategory() {
-        List<WebElement> subs = home.subCategories(selectedMain);
+    public void selectRandomSubCategory() {
+        Hooks.driver.manage().timeouts().implicitlyWait(2, TimeUnit.SECONDS);
 
-        if (subs.isEmpty()) {
-            Assert.fail("No sub-categories found for the selected main category.");
+        List<WebElement> subCategories = homePage.subCategories(selectedCategoryIndex);
+
+        if (!subCategories.isEmpty()) {
+            int randomSubCategory = new Random().nextInt(subCategories.size());
+            WebElement chosenSubCategory = subCategories.get(randomSubCategory);
+
+            selectedName = chosenSubCategory.getText().toLowerCase().trim();
+            chosenSubCategory.click();
+        } else {
+            WebElement mainCategory = homePage.mainCategories().get(selectedCategoryIndex);
+
+            selectedName = mainCategory.getText().toLowerCase().trim();
+            mainCategory.click();
         }
 
-        Random rand = new Random();
-        int index = rand.nextInt(subs.size()); // Dynamically handle the list size
-
-        WebElement sub = subs.get(index);
-
-        selectedSubText = sub.getText().toLowerCase().trim();
-
-        sub.click();
+        Hooks.driver.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
     }
 
     @Then("sub-category page should be opened successfully")
-    public void verifySubCategoryPage() {
-        WebElement pageTitleElement = home.pageTitle();
-        Assert.assertNotNull(pageTitleElement, "Page title is not displayed on the sub-category page.");
+    public void verifyTitle() {
+        WebDriverWait wait = new WebDriverWait(Hooks.driver, Duration.ofSeconds(10));
+        wait.until(ExpectedConditions.visibilityOf(homePage.pageTitle()));
 
-        String pageTitle = pageTitleElement.getText().toLowerCase().trim();
+        String actualTitle = homePage.pageTitle().getText().toLowerCase().trim();
 
-        Assert.assertTrue(pageTitle.contains(selectedSubText),
-                String.format("Expected page title to contain '%s', but was '%s'", selectedSubText, pageTitle));
+        Assert.assertTrue(
+                actualTitle.contains(selectedName),
+                "Expected title to contain: " + selectedName + " but found: " + actualTitle
+        );
     }
 }

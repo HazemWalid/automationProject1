@@ -13,7 +13,7 @@ public class P03_homePage {
     }
 
     public WebElement searchBtn() {
-        return Hooks.driver.findElement(By.cssSelector("button[type=\"submit\"]"));
+        return Hooks.driver.findElement(By.cssSelector("button[type='submit']"));
     }
 
     public List<WebElement> searchResults() {
@@ -23,69 +23,74 @@ public class P03_homePage {
     public WebElement skuOnProductPage() {
         return Hooks.driver.findElement(By.cssSelector("span.sku-number"));
     }
-    // currency dropdown
+
     public WebElement currencyDropdown() {
         return Hooks.driver.findElement(By.id("customerCurrency"));
     }
 
-    // list of product prices
     public List<WebElement> productPrices() {
         return Hooks.driver.findElements(By.cssSelector("span.price.actual-price"));
     }
-    // main categories (Computers, Electronics, Apparel)
+
+    // Feature 5
     public List<WebElement> mainCategories() {
-        return Hooks.driver.findElements(By.cssSelector("ul.top-menu.notmobile > li > a"));
+        return Hooks.driver.findElements(By.xpath("//ul[@class='top-menu notmobile']/li/a"));
     }
 
-    // sub categories
-    public List<WebElement> subCategories(WebElement mainCategory) {
-        return mainCategory.findElements(By.xpath("following-sibling::ul/li/a"));
+    public List<WebElement> subCategories(int selectedCategory) {
+        int index = selectedCategory + 1;
+        return Hooks.driver.findElements(
+                By.cssSelector("ul.top-menu.notmobile > li:nth-child(" + index + ") ul.sublist.first-level > li > a")
+        );
     }
 
-    // page title
     public WebElement pageTitle() {
         return Hooks.driver.findElement(By.cssSelector("div.page-title h1"));
     }
-    // first slider (iPhone)
-    public WebElement firstSlider() {
-        return Hooks.driver.findElement(By.cssSelector("div.nivo-slider a:nth-of-type(1)"));
+
+    // Feature 6
+    public List<WebElement> sliderAnchors() {
+        return Hooks.driver.findElements(By.cssSelector("#nivo-slider a"));
     }
 
-    // second slider (Samsung)
-    public WebElement secondSlider() {
-        return Hooks.driver.findElement(By.cssSelector("div.nivo-slider a:nth-of-type(2)"));
+    public WebElement firstSlider() {
+        return sliderAnchors().get(0);
     }
+
+    public WebElement secondSlider() {
+        return sliderAnchors().get(1);
+    }
+
+    // Feature 7
     public WebElement facebookIcon() {
-        return Hooks.driver.findElement(By.cssSelector("a.facebook"));
+        return Hooks.driver.findElement(By.cssSelector("a[href='https://www.facebook.com/nopCommerce']"));
     }
 
     public WebElement twitterIcon() {
-        return Hooks.driver.findElement(By.cssSelector("a.twitter"));
+        return Hooks.driver.findElement(By.cssSelector("a[href='https://twitter.com/nopCommerce']"));
     }
 
     public WebElement rssIcon() {
-        return Hooks.driver.findElement(By.cssSelector("a.rss"));
+        return Hooks.driver.findElement(By.cssSelector("a[href*='rss']"));
     }
 
     public WebElement youtubeIcon() {
-        return Hooks.driver.findElement(By.cssSelector("a.youtube"));
-    }
-    // add to wishlist button (first product)
-    public WebElement addToWishlistBtn() {
-        return Hooks.driver.findElement(By.cssSelector("button[class=\"button-2 add-to-wishlist-button\"]"));
+        return Hooks.driver.findElement(By.cssSelector("a[href='https://www.youtube.com/user/nopCommerce']"));
     }
 
-    // success message
+    // Wishlist
+    public WebElement addToWishlistBtn() {
+        return Hooks.driver.findElement(By.cssSelector("button[class='button-2 add-to-wishlist-button']"));
+    }
+
     public WebElement successMessage() {
         return Hooks.driver.findElement(By.cssSelector("div.bar-notification.success"));
     }
 
-    // wishlist tab
     public WebElement wishlistTab() {
         return Hooks.driver.findElement(By.className("ico-wishlist"));
     }
 
-    // wishlist quantity
     public WebElement wishlistQty() {
         return Hooks.driver.findElement(By.cssSelector("span.wishlist-qty"));
     }
